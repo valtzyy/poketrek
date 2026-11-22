@@ -1,0 +1,26 @@
+name: poketrek
+description: "PokéTrek - Project Akhir Praktikum Pemrograman Aplikasi Mobile"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.6.0                         # Modul V
+  shared_preferences: ^2.5.6           # Modul VI
+  hive_flutter: ^1.1.0                 # Modul VI
+  flutter_local_notifications: ^22.3.3 # Modul VII
+  timezone: ^0.11.2                    # Modul VII
+  geolocator: ^14.0.1                  # Modul VII
+  get: ^4.7.3                          # Modul VIII
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
