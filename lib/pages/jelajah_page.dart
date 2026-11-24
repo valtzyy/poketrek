@@ -110,13 +110,17 @@ class _JelajahPageState extends State<JelajahPage> {
     }
 
     // Scheduled notification
-    await NotificationService().scheduleNotification(
-      id: DateTime.now().millisecondsSinceEpoch % 100000,
-      title: 'Waktunya berburu! ⏰',
-      body: 'Jangan lupa ke ${lokasi.nama}. ${lokasi.deskripsi()}',
-      scheduledTime: waktu,
-    );
-    Get.snackbar('Reminder dipasang', 'Kamu akan diingatkan pada ${formatTanggal(waktu)}');
+    try {
+      await NotificationService().scheduleNotification(
+        id: DateTime.now().millisecondsSinceEpoch % 100000,
+        title: 'Waktunya berburu! ⏰',
+        body: 'Jangan lupa ke ${lokasi.nama}. ${lokasi.deskripsi()}',
+        scheduledTime: waktu,
+      );
+      Get.snackbar('Reminder dipasang', 'Kamu akan diingatkan pada ${formatTanggal(waktu)}');
+    } catch (e) {
+      Get.snackbar('Gagal memasang reminder', e.toString());
+    }
   }
 
   @override
