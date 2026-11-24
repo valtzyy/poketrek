@@ -1,4 +1,5 @@
 // MODUL VI - Shared Preferences (session login + setting mode demo)
+import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionService {
@@ -21,13 +22,19 @@ class SessionService {
     await prefs.remove(_keyUsername);
   }
 
+  /// Reaktif: Jelajah (Obx) otomatis ikut berubah saat Profil mengganti mode.
+  static final RxBool demoMode = false.obs;
+
   static Future<bool> isDemoMode() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool(_keyDemoMode) ?? false;
+    final value = prefs.getBool(_keyDemoMode) ?? false;
+    demoMode.value = value;
+    return value;
   }
 
   static Future<void> setDemoMode(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyDemoMode, value);
+    demoMode.value = value;
   }
 }

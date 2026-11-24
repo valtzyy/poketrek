@@ -25,11 +25,17 @@ class _JelajahPageState extends State<JelajahPage> {
 
   Position? _posisi;
   bool _isLoading = false;
-  bool _demoMode = false;
   String? _error;
   List<Map<String, dynamic>> _lokasiDenganJarak = [];
 
+  bool get _demoMode => SessionService.demoMode.value;
   double get _radius => _demoMode ? radiusDemo : radiusNormal;
+
+  @override
+  void initState() {
+    super.initState();
+    SessionService.isDemoMode(); // muat nilai tersimpan ke RxBool
+  }
 
   Future<void> _cekLokasi() async {
     setState(() {
@@ -39,7 +45,6 @@ class _JelajahPageState extends State<JelajahPage> {
 
     try {
       final posisi = await LocationService.getCurrentPosition();
-      final demo = await SessionService.isDemoMode();
 
       final hasil = daftarLokasi
           .map((l) => {'lokasi': l, 'jarak': LocationService.hitungJarak(posisi, l)})
@@ -49,7 +54,6 @@ class _JelajahPageState extends State<JelajahPage> {
       if (!mounted) return;
       setState(() {
         _posisi = posisi;
-        _demoMode = demo;
         _lokasiDenganJarak = hasil;
       });
     } catch (e) {
@@ -119,7 +123,7 @@ class _JelajahPageState extends State<JelajahPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Jelajah')),
-      body: Column(
+      body: Obx(() => Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16),
@@ -168,7 +172,7 @@ class _JelajahPageState extends State<JelajahPage> {
             ),
           ),
         ],
-      ),
+      )),
     );
   }
 
