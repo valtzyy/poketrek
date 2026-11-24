@@ -6,6 +6,7 @@ import 'package:poketrek/controllers/koleksi_controller.dart';
 import 'package:poketrek/data/daftar_lokasi.dart';
 import 'package:poketrek/models/caught_pokemon.dart';
 import 'package:poketrek/models/lokasi.dart';
+import 'package:poketrek/models/pokemon.dart';
 import 'package:poketrek/services/api_service.dart';
 import 'package:poketrek/services/location_service.dart';
 import 'package:poketrek/services/notification_service.dart';
@@ -25,6 +26,7 @@ class _JelajahPageState extends State<JelajahPage> {
 
   Position? _posisi;
   bool _isLoading = false;
+  bool _sedangMenangkap = false;
   String? _error;
   List<Map<String, dynamic>> _lokasiDenganJarak = [];
 
@@ -65,8 +67,12 @@ class _JelajahPageState extends State<JelajahPage> {
   }
 
   Future<void> _tangkap(SpawnSpot spot) async {
+    if (_sedangMenangkap) return; // cegah double-tap -> duplikat di Hive
+    setState(() => _sedangMenangkap = true);
+
+    final PokemonDetail detail;
     try {
-      final detail = await ApiService.getPokemonDetail(spot.pokemonId);
+      detail = await ApiService.getPokemonDetail(spot.pokemonId);
       await Get.find<KoleksiController>().tangkap(
         CaughtPokemon(
           pokemonId: detail.id,
@@ -77,14 +83,20 @@ class _JelajahPageState extends State<JelajahPage> {
           caughtAt: DateTime.now(),
         ),
       );
-      // Immediate notification
+    } catch (e) {
+      Get.snackbar('Gagal menangkap', e.toString());
+      return;
+    } finally {
+      if (mounted) setState(() => _sedangMenangkap = false);
+    }
+
+    // Sudah tersimpan: kegagalan notif tidak boleh tampil sebagai "gagal menangkap"
+    try {
       await NotificationService().showInstantNotification(
         title: 'Gotcha! ${detail.displayName} tertangkap 🎉',
         body: 'Ditangkap di ${spot.nama}. Cek di Tas Koleksi ya!',
       );
-    } catch (e) {
-      Get.snackbar('Gagal menangkap', e.toString());
-    }
+    } catch (_) {}
   }
 
   Future<void> _setReminder(Lokasi lokasi) async {
@@ -230,7 +242,9 @@ class _JelajahPageState extends State<JelajahPage> {
                 ),
                 if (lokasi.bisaDitangkap)
                   FilledButton.icon(
-                    onPressed: dalamRadius ? () => _tangkap(lokasi as SpawnSpot) : null,
+                    onPressed: dalamRadius && !_sedangMenangkap
+                        ? () => _tangkap(lokasi as SpawnSpot)
+                        : null,
                     icon: const Icon(Icons.catching_pokemon),
                     label: Text(dalamRadius ? 'Tangkap!' : 'Terlalu jauh'),
                   ),
