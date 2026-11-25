@@ -7,6 +7,12 @@ class PokedexController extends GetxController {
   final pokemonList = <Pokemon>[].obs;
   final isLoading = true.obs;
   final errorMessage = ''.obs;
+  final searchQuery = ''.obs;
+
+  /// Daftar yang ditampilkan: otomatis ikut berubah saat searchQuery diketik
+  List<Pokemon> get filteredList => pokemonList
+      .where((p) => p.name.contains(searchQuery.value.trim().toLowerCase()))
+      .toList();
 
   @override
   void onInit() {

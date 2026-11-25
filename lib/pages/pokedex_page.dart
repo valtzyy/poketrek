@@ -14,47 +14,69 @@ class PokedexPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Pokédex')),
-      body: Obx(() {
-        if (c.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (c.errorMessage.value.isNotEmpty) {
-          return Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(c.errorMessage.value, textAlign: TextAlign.center),
-                const SizedBox(height: 12),
-                ElevatedButton(onPressed: c.fetchPokemon, child: const Text('Coba lagi')),
-              ],
-            ),
-          );
-        }
-        return GridView.builder(
-          padding: const EdgeInsets.all(12),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            childAspectRatio: 0.85,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-          ),
-          itemCount: c.pokemonList.length,
-          itemBuilder: (context, index) {
-            final pokemon = c.pokemonList[index];
-            return PokemonCard(
-              pokemon: pokemon,
-              // Modul IV - push + passing data (id & nama)
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      DetailPage(id: pokemon.id, name: pokemon.displayName),
-                ),
+      body: Column(
+        children: [
+          // Search: setiap ketikan mengubah searchQuery, Obx di bawah ikut rebuild
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
+            child: TextField(
+              onChanged: (value) => c.searchQuery(value),
+              decoration: InputDecoration(
+                hintText: 'Cari nama Pokémon...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
-            );
-          },
-        );
-      }),
+            ),
+          ),
+          Expanded(
+            child: Obx(() {
+              if (c.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (c.errorMessage.value.isNotEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(c.errorMessage.value, textAlign: TextAlign.center),
+                      const SizedBox(height: 12),
+                      ElevatedButton(onPressed: c.fetchPokemon, child: const Text('Coba lagi')),
+                    ],
+                  ),
+                );
+              }
+              final hasil = c.filteredList;
+              if (hasil.isEmpty) {
+                return const Center(child: Text('Pokémon tidak ditemukan'));
+              }
+              return GridView.builder(
+                padding: const EdgeInsets.all(12),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.85,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                ),
+                itemCount: hasil.length,
+                itemBuilder: (context, index) {
+                  final pokemon = hasil[index];
+                  return PokemonCard(
+                    pokemon: pokemon,
+                    // Modul IV - push + passing data (id & nama)
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            DetailPage(id: pokemon.id, name: pokemon.displayName),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }),
+          ),
+        ],
+      ),
     );
   }
 }
