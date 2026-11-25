@@ -42,7 +42,8 @@ class KoleksiPage extends StatelessWidget {
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => DetailPage(id: p.pokemonId, name: p.name),
+                    builder: (context) =>
+                        DetailPage(id: p.pokemonId, name: p.name, nickname: p.nickname),
                   ),
                 ),
                 trailing: PopupMenuButton<String>(

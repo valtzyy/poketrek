@@ -7,8 +7,9 @@ import 'package:poketrek/widgets/type_chip.dart';
 class DetailPage extends StatefulWidget {
   final int id;
   final String name;
+  final String? nickname; // diisi kalau dibuka dari Tas Koleksi
 
-  const DetailPage({super.key, required this.id, required this.name});
+  const DetailPage({super.key, required this.id, required this.name, this.nickname});
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -26,6 +27,13 @@ class _DetailPageState extends State<DetailPage> {
     'speed': 'Speed',
   };
 
+  /// "Dudung (Charmander)" kalau sudah diberi nickname, selain itu cukup "Charmander"
+  String _judul(String spesies) {
+    final nick = widget.nickname;
+    if (nick == null || nick == spesies) return spesies;
+    return '$nick ($spesies)';
+  }
+
   @override
   void initState() {
     super.initState();
@@ -35,7 +43,7 @@ class _DetailPageState extends State<DetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.name)),
+      appBar: AppBar(title: Text(_judul(widget.name))),
       body: FutureBuilder<PokemonDetail>(
         future: _futureDetail,
         builder: (context, snapshot) {
@@ -54,7 +62,8 @@ class _DetailPageState extends State<DetailPage> {
                 Image.network(p.imageUrl, height: 220),
                 Text(p.nomor, style: const TextStyle(color: Colors.grey, fontSize: 16)),
                 Text(
-                  p.displayName,
+                  _judul(p.displayName),
+                  textAlign: TextAlign.center,
                   style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
